@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from "react";
-import { AlertCircle, Check, Copy, LoaderCircle, Monitor, RefreshCw, RotateCcw, Smartphone, Sparkles, Tablet, Upload } from "lucide-react";
-import { generateUI, type UIAnalysis } from "./services/api";
+import { AlertCircle, Check, Copy, LoaderCircle, Monitor, RefreshCw, RotateCcw, Smartphone, Sparkles, Tablet, Undo2, Upload, Wand2 } from "lucide-react";
+import { generateUI, modifyUI, type UIAnalysis } from "./services/api";
 import CodeEditor from "./components/CodeEditor";
 import LivePreview, { type PreviewDevice } from "./components/LivePreview";
 
@@ -19,6 +19,10 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<PreviewDevice>("desktop");
   const [previewRefreshKey, setPreviewRefreshKey] = useState(0);
+  const [modificationPrompt, setModificationPrompt] = useState("");
+  const [modifying, setModifying] = useState(false);
+  const [modificationError, setModificationError] = useState("");
+  const [previousCode, setPreviousCode] = useState<string | null>(null);
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 
@@ -42,6 +46,9 @@ function App() {
       setAnalysis(result.analysis);
       setCode(result.code);
       setGeneratedCode(result.code);
+      setPreviousCode(null);
+      setModificationError("");
+      setModificationPrompt("");
       setPreviewRefreshKey((key) => key + 1);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Failed to generate UI.");
@@ -50,6 +57,30 @@ function App() {
     }
   };
 
+  const handleModify = async () => {
+    const instruction = modificationPrompt.trim();
+    if (!instruction) return setModificationError("Describe the change you want to make.");
+    setModifying(true);
+    setModificationError("");
+    try {
+      const result = await modifyUI(code, instruction);
+      setPreviousCode(code);
+      setCode(result.code);
+      setModificationPrompt("");
+      setPreviewRefreshKey((key) => key + 1);
+    } catch (requestError) {
+      setModificationError(requestError instanceof Error ? requestError.message : "Failed to modify UI.");
+    } finally {
+      setModifying(false);
+    }
+  };
+
+  const handleUndoModification = () => {
+    if (!previousCode) return;
+    setCode(previousCode);
+    setPreviousCode(null);
+    setPreviewRefreshKey((key) => key + 1);
+  };
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code);
     setCopied(true);
@@ -92,6 +123,17 @@ function App() {
               <p className="mb-3 text-sm text-gray-400">Code Editor</p>
               <CodeEditor code={code} onChange={setCode} />
             </div>
+            <section className="rounded-xl border border-gray-800 bg-gray-900/60 p-4">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <div><h3 className="font-semibold text-white">Modify with AI</h3><p className="text-sm text-gray-400">Describe a focused change; your current editor code will be preserved until it succeeds.</p></div>
+                <button type="button" onClick={handleUndoModification} disabled={!previousCode || modifying} className="flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"><Undo2 size={16} />Undo change</button>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input value={modificationPrompt} onChange={(event) => setModificationPrompt(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void handleModify(); } }} disabled={modifying} className="min-w-0 flex-1 rounded-lg border border-gray-700 bg-gray-950 px-4 py-3 outline-none focus:border-purple-500 disabled:opacity-60" placeholder="e.g. Make the navbar blue and keep everything else unchanged" />
+                <button type="button" onClick={() => void handleModify()} disabled={modifying || !modificationPrompt.trim()} className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-3 font-medium hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50">{modifying ? <LoaderCircle size={17} className="animate-spin" /> : <Wand2 size={17} />}{modifying ? "Updating UI…" : "Apply change"}</button>
+              </div>
+              {modificationError && <div role="alert" className="mt-3 flex items-center gap-2 rounded-lg border border-red-900 bg-red-950/50 p-3 text-sm text-red-200"><AlertCircle size={17} />{modificationError}</div>}
+            </section>
             <div>
               <p className="mb-3 text-sm text-gray-400">Live Preview</p>
               <LivePreview code={code} device={previewDevice} refreshKey={previewRefreshKey} />
@@ -121,6 +163,8 @@ function AnalysisPanel({ analysis }: { analysis: UIAnalysis }) {
 }
 
 export default App;
+
+
 
 
 
