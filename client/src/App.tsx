@@ -87,7 +87,28 @@ function App() {
         {analysis && <AnalysisPanel analysis={analysis} />}
         {code && <section>
           <div className="mb-5 flex items-center justify-between"><h2 className="text-xl font-semibold">Generated React UI</h2><button onClick={handleCopy} className="flex items-center gap-2 rounded-lg border border-gray-700 px-4 py-2 text-sm hover:bg-gray-800">{copied ? <><Check size={16} />Copied</> : <><Copy size={16} />Copy Code</>}</button></div>
-          <div className="grid gap-6 lg:grid-cols-2"><div><p className="mb-3 text-sm text-gray-400">Code Editor</p><CodeEditor code={code} onChange={setCode} /></div><div><div className="mb-3 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-gray-400">Live Preview</p><div className="flex items-center gap-1 rounded-lg border border-gray-700 bg-gray-900 p-1" role="group" aria-label="Preview device size">{([ ["desktop", Monitor, "Desktop"], ["tablet", Tablet, "Tablet"], ["mobile", Smartphone, "Mobile"] ] as const).map(([device, Icon, label]) => <button key={device} type="button" onClick={() => setPreviewDevice(device)} title={label} aria-label={label} className={`rounded-md p-2 transition ${previewDevice === device ? "bg-purple-600 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`}><Icon size={16} /></button>)}</div></div><div className="mb-3 flex flex-wrap justify-end gap-2"><button type="button" onClick={() => setPreviewRefreshKey((key) => key + 1)} className="flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm hover:bg-gray-800"><RefreshCw size={15} />Refresh preview</button><button type="button" onClick={() => { setCode(generatedCode); setPreviewRefreshKey((key) => key + 1); }} disabled={code === generatedCode} className="flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"><RotateCcw size={15} />Reset code</button></div><LivePreview code={code} device={previewDevice} refreshKey={previewRefreshKey} /><p className="mt-2 text-xs text-gray-500">Edits update automatically. Build errors are shown inside the isolated preview.</p></div></div>
+          <div className="space-y-6">
+            <div>
+              <p className="mb-3 text-sm text-gray-400">Code Editor</p>
+              <CodeEditor code={code} onChange={setCode} />
+            </div>
+            <div>
+              <p className="mb-3 text-sm text-gray-400">Live Preview</p>
+              <LivePreview code={code} device={previewDevice} refreshKey={previewRefreshKey} />
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                <div className="grid w-full grid-cols-3 gap-1 rounded-lg border border-gray-700 bg-gray-900 p-1 sm:w-auto" role="group" aria-label="Preview device size">
+                  {([ ["desktop", Monitor, "Desktop"], ["tablet", Tablet, "Tablet"], ["mobile", Smartphone, "Mobile"] ] as const).map(([device, Icon, label]) => (
+                    <button key={device} type="button" onClick={() => setPreviewDevice(device)} title={label} aria-label={label} className={`flex min-w-0 items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition sm:text-sm ${previewDevice === device ? "bg-purple-600 text-white shadow-sm" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`}><Icon size={16} /><span>{label}</span></button>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" onClick={() => setPreviewRefreshKey((key) => key + 1)} className="flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm hover:bg-gray-800"><RefreshCw size={15} />Refresh preview</button>
+                  <button type="button" onClick={() => { setCode(generatedCode); setPreviewRefreshKey((key) => key + 1); }} disabled={code === generatedCode} className="flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"><RotateCcw size={15} />Reset code</button>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-gray-500">Edits update automatically. Build errors are shown inside the isolated preview.</p>
+            </div>
+          </div>
         </section>}
       </main>
     </div>
@@ -100,4 +121,7 @@ function AnalysisPanel({ analysis }: { analysis: UIAnalysis }) {
 }
 
 export default App;
+
+
+
 
