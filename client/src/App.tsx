@@ -1,8 +1,11 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, Check, Copy, LoaderCircle, Monitor, RefreshCw, RotateCcw, Smartphone, Sparkles, Tablet, Undo2, Upload, Wand2 } from "lucide-react";
 import { generateUI, modifyUI, type UIAnalysis } from "./services/api";
 import CodeEditor from "./components/CodeEditor";
 import LivePreview, { type PreviewDevice } from "./components/LivePreview";
+import ComponentTree from "./components/ComponentTree";
+import DesignSystemPanel from "./components/DesignSystemPanel";
+import { extractComponentTree, extractDesignTokens, replaceToken, type ComponentNode, type DesignToken } from "./utils/designSystem";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
@@ -23,8 +26,13 @@ function App() {
   const [modifying, setModifying] = useState(false);
   const [modificationError, setModificationError] = useState("");
   const [previousCode, setPreviousCode] = useState<string | null>(null);
+  const [selectedComponent, setSelectedComponent] = useState<ComponentNode | null>(null);
+  const [tokenError, setTokenError] = useState("");
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
+
+  const componentTree = useMemo(() => extractComponentTree(code), [code]);
+  const designTokens = useMemo(() => extractDesignTokens(code), [code]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -80,6 +88,18 @@ function App() {
     setCode(previousCode);
     setPreviousCode(null);
     setPreviewRefreshKey((key) => key + 1);
+  };
+  const handleTokenApply = (token: DesignToken, replacement: string) => {
+    try {
+      const updatedCode = replaceToken(code, token.value, replacement);
+      if (updatedCode === code) return setTokenError("This token was not found in the current code.");
+      setPreviousCode(code);
+      setCode(updatedCode);
+      setTokenError("");
+      setPreviewRefreshKey((key) => key + 1);
+    } catch (tokenApplyError) {
+      setTokenError(tokenApplyError instanceof Error ? tokenApplyError.message : "Unable to apply this token.");
+    }
   };
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code);
@@ -152,6 +172,10 @@ function App() {
             </div>
           </div>
         </section>}
+        {code && <div className="space-y-6">
+          <ComponentTree components={componentTree} selectedId={selectedComponent?.id || null} onSelect={setSelectedComponent} />
+          <DesignSystemPanel tokens={designTokens} onApply={handleTokenApply} error={tokenError} />
+        </div>}
       </main>
     </div>
   );
@@ -163,6 +187,7 @@ function AnalysisPanel({ analysis }: { analysis: UIAnalysis }) {
 }
 
 export default App;
+
 
 
 
