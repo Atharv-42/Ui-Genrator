@@ -3,6 +3,8 @@ export interface UIAnalysis {
   colors: string[];
   typography: string;
   components: string[];
+  spacing: string;
+  responsiveBehavior: string;
 }
 
 export interface GenerateResponse {
@@ -12,26 +14,14 @@ export interface GenerateResponse {
   message?: string;
 }
 
-export async function generateUI(
-  image: File,
-  prompt: string
-): Promise<GenerateResponse> {
-  const formData = new FormData();
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+export async function generateUI(image: File, prompt: string): Promise<GenerateResponse> {
+  const formData = new FormData();
   formData.append("image", image);
   formData.append("prompt", prompt);
-
-  const response = await fetch(
-    "http://localhost:5000/api/generate",
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to generate UI");
-  }
-
-  return response.json();
+  const response = await fetch(`${API_URL}/api/generate`, { method: "POST", body: formData });
+  const result = await response.json().catch(() => null) as GenerateResponse | null;
+  if (!response.ok || !result?.success) throw new Error(result?.message || "Failed to generate UI.");
+  return result;
 }

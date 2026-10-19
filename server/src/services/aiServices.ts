@@ -1,112 +1,95 @@
 import type { Express } from "express";
 
-export async function generateReactUI(
-  file: Express.Multer.File,
-  prompt: string
-) {
-  /*
-    IMPORTANT:
+export interface UIAnalysis {
+  layout: string;
+  components: string[];
+  colors: string[];
+  typography: string;
+  spacing: string;
+  responsiveBehavior: string;
+}
 
-    Connect your preferred vision-capable AI API here.
+export interface GeneratedUI {
+  analysis: UIAnalysis;
+  code: string;
+}
 
-    The AI should receive:
+interface GroqResponse {
+  choices?: Array<{ message?: { content?: string | null } }>;
+  error?: { message?: string };
+}
 
-    1. Screenshot
-    2. User prompt
+const delay = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
-    And return:
+function getApiKey() {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) throw new Error("GROQ_API_KEY is not configured on the server.");
+  return apiKey;
+}
 
-    {
-      analysis: {
-        pageType,
-        description,
-        components,
-        colors
-      },
-      code
-    }
-  */
+export async function generateReactUI(file: Express.Multer.File, prompt: string): Promise<GeneratedUI> {
+  const instruction = [
+    "You are a senior frontend engineer. Analyze the supplied screenshot accurately.",
+    "Return only valid JSON with this exact shape:",
+    '{"analysis":{"layout":"string","components":["string"],"colors":["string"],"typography":"string","spacing":"string","responsiveBehavior":"string"},"code":"string"}.',
+    "The code must be a self-contained React TypeScript component using Tailwind CSS utility classes.",
+    "The preview supplies React and ReactDOM as browser globals, so do not add imports or exports.",
+    "Define the component exactly as `const GeneratedUI = () => { return (/* JSX */); };`.",
+    "Do not call ReactDOM.createRoot. Do not use markdown fences, external assets, package imports, or explanations inside code.",
+    `User requirements: ${prompt}`,
+  ].join("\\n\\n");
 
-  console.log(
-    "Received screenshot:",
-    file.originalname
-  );
-
-  console.log(
-    "User prompt:",
-    prompt
-  );
-
-  // Temporary response for testing the frontend.
-  // Replace this section with your actual AI API call.
-
-  return {
-    analysis: {
-      pageType: "Landing Page",
-
-      description:
-        "A modern landing page containing a navigation bar, hero section, feature cards and CTA.",
-
-      components: [
-        "Navbar",
-        "Hero",
-        "FeatureCard",
-        "CTA",
-        "Footer",
+  const requestBody = {
+    model: process.env.GROQ_MODEL || "qwen/qwen3.8-27b",
+    messages: [{
+      role: "user",
+      content: [
+        { type: "text", text: instruction },
+        {
+          type: "image_url",
+          image_url: { url: `data:${file.mimetype};base64,${file.buffer.toString("base64")}` },
+        },
       ],
-
-      colors: [
-        "#111827",
-        "#2563EB",
-        "#F8FAFC",
-      ],
-    },
-
-    code: `
-import React from "react";
-
-function Navbar() {
-  return (
-    <nav className="flex items-center justify-between px-6 py-4 border-b">
-      <h1 className="text-xl font-bold">
-        My Website
-      </h1>
-
-      <div className="flex gap-6">
-        <a href="#">Home</a>
-        <a href="#">About</a>
-        <a href="#">Contact</a>
-      </div>
-    </nav>
-  );
-}
-
-function Hero() {
-  return (
-    <section className="px-6 py-24 text-center">
-      <h1 className="text-5xl font-bold">
-        Build Something Amazing
-      </h1>
-
-      <p className="mx-auto mt-5 max-w-xl text-gray-600">
-        Generated from your screenshot using AI.
-      </p>
-
-      <button className="mt-8 rounded-lg bg-blue-600 px-6 py-3 text-white">
-        Get Started
-      </button>
-    </section>
-  );
-}
-
-export default function App() {
-  return (
-    <main>
-      <Navbar />
-      <Hero />
-    </main>
-  );
-}
-`,
+    }],
+    response_format: { type: "json_object" },
+    temperature: 0.2,
+    max_completion_tokens: 6000,
   };
+
+  let lastError: Error | undefined;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${getApiKey()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+      const result = await response.json() as GroqResponse;
+
+      if (!response.ok) {
+        const message = result.error?.message || `Groq request failed with status ${response.status}.`;
+        if ((response.status === 429 || response.status >= 500) && attempt < 2) {
+          await delay(1000 * 2 ** attempt);
+          continue;
+        }
+        throw new Error(message);
+      }
+
+      const content = result.choices?.[0]?.message?.content;
+      if (!content) throw new Error("Groq did not return generated UI content.");
+      return JSON.parse(content) as GeneratedUI;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error("Failed to generate UI with Groq.");
+      if (attempt < 2 && /fetch|network|timeout/i.test(lastError.message)) {
+        await delay(1000 * 2 ** attempt);
+        continue;
+      }
+      throw lastError;
+    }
+  }
+
+  throw lastError || new Error("Failed to generate UI with Groq.");
 }
