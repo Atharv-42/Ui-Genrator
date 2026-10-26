@@ -12,6 +12,7 @@
   "dependencies": {
     "@babel/standalone": "^8.0.7",
     "@monaco-editor/react": "^4.7.0",
+    "@supabase/supabase-js": "^2.49.1",
     "lucide-react": "^1.47.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
@@ -36,3 +37,5 @@
     "vite": "^8.3.0"
   }
 }
+
+
