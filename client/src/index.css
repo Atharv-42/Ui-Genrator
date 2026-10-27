@@ -37,3 +37,6 @@ button { cursor: pointer; } button:disabled { cursor: not-allowed; opacity: .55;
 .border-white\/10 { border-color: #3c3c3c !important; }
 .text-zinc-100 { color: #d4d4d4 !important; }
 .text-zinc-400, .text-zinc-500 { color: #858585 !important; }
+
+.project-actions { display: flex; gap: .4rem; }.header-action { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #3c3c3c; border-radius: .55rem; padding: .48rem .65rem; color: #d4d4d4; font-size: .8rem; white-space: nowrap; }.header-action:hover:not(:disabled) { border-color: #007acc; background: #094771; color: #fff; }
+@media (max-width: 1023px) { .header-action span { display: none; } .header-action { padding: .5rem; } }
