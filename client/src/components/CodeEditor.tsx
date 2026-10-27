@@ -10,7 +10,7 @@ export default function CodeEditor({
   onChange,
 }: CodeEditorProps) {
   return (
-    <div className="h-[600px] overflow-hidden rounded-xl border border-gray-700">
+    <div className="code-editor h-[600px] overflow-hidden rounded-xl border border-gray-700">
       <Editor
         height="100%"
         defaultLanguage="typescript"

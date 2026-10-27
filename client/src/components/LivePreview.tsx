@@ -1,4 +1,4 @@
-﻿import { useMemo } from "react";
+import { useMemo } from "react";
 import * as Babel from "@babel/standalone";
 
 export type PreviewDevice = "desktop" | "tablet" | "mobile";
@@ -61,8 +61,8 @@ export default function LivePreview({ code, device, refreshKey }: LivePreviewPro
   }, [code, refreshKey]);
 
   return (
-    <div className="flex h-[600px] items-start justify-center overflow-auto rounded-xl border border-gray-700 bg-gray-950 p-3">
-      <div className="h-full shrink-0 overflow-hidden rounded-lg bg-white shadow-2xl transition-[width] duration-200" style={{ width: deviceWidths[device] }}>
+    <div className="preview-shell flex h-[600px] items-start justify-center overflow-auto rounded-xl border border-gray-700 bg-gray-950 p-3">
+      <div className="h-full shrink-0 overflow-hidden rounded-lg bg-white shadow-2xl transition-[width] duration-200" style={{ width: deviceWidths[device], maxWidth: "100%" }}>
         {result.error ? (
           <pre className="m-0 h-full overflow-auto bg-red-950 p-4 text-sm whitespace-pre-wrap text-red-100">Preview compilation error: {result.error}</pre>
         ) : (
@@ -72,6 +72,7 @@ export default function LivePreview({ code, device, refreshKey }: LivePreviewPro
     </div>
   );
 }
+
 
 
 
