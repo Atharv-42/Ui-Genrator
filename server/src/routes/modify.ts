@@ -1,5 +1,5 @@
 ﻿import { Router } from "express";
-import { modifyReactUI } from "../services/aiServices";
+import { modifyReactUI } from "../services/aiServices.js";
 
 const router = Router();
 const MAX_CODE_LENGTH = 100_000;

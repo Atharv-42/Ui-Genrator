@@ -1,6 +1,6 @@
 import { ZipArchive } from "archiver";
 import type { Response } from "express";
-import { supabaseAdmin } from "./supabase";
+import { supabaseAdmin } from "./supabase.js";
 
 const slug = (value: string) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "pixelforge-project";
 const cleanName = (value: string) => value.replace(/[<>:&"']/g, "").slice(0, 120) || "PixelForge project";

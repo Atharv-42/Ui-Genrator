@@ -3,9 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { fileURLToPath } from "node:url";
 
-import generateRouter from "./routes/generate";
-import projectsRouter from "./routes/projects";
-import modifyRouter from "./routes/modify";
+import generateRouter from "./routes/generate.js";
+import projectsRouter from "./routes/projects.js";
+import modifyRouter from "./routes/modify.js";
 
 dotenv.config({
   path: fileURLToPath(new URL("../.env", import.meta.url)),
