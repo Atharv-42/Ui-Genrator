@@ -2,7 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import { streamProjectExport } from "../services/projectExport";
 import { requireUser, supabaseAdmin } from "../services/supabase";
-const router = Router(); const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+const router = Router(); const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 4 * 1024 * 1024 } });
 const fail = (res: any, error: unknown) => res.status(error instanceof Error && error.message.includes("Authentication") ? 401 : 500).json({ success: false, message: error instanceof Error ? error.message : "Project request failed." });
 const parse = (value: unknown, fallback: unknown = null) => { try { return typeof value === "string" ? JSON.parse(value) : fallback; } catch { return fallback; } };
 async function userFor(req: any) { return requireUser(req.header("authorization")); }

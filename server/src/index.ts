@@ -12,14 +12,21 @@ dotenv.config({
 });
 
 const app = express();
+const allowedOrigins = new Set([
+  "http://localhost:5173",
+  ...(process.env.CLIENT_ORIGINS || "").split(",").map((origin) => origin.trim()).filter(Boolean),
+]);
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+      return callback(new Error("This origin is not allowed by the API CORS policy."));
+    },
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
 app.get("/api/health", (_req, res) => {
   res.json({
@@ -32,10 +39,13 @@ app.use("/api/projects", projectsRouter);
 app.use("/api/generate", generateRouter);
 app.use("/api/modify", modifyRouter);
 
-const PORT = process.env.PORT || 5000;
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+export default app;
 
 
