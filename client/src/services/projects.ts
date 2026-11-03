@@ -6,6 +6,7 @@ async function request(path:string, options:RequestInit={}) { const token=await 
 export const listProjects=async()=> (await request("/")).projects as Project[];
 export const getProject=async(id:string)=> (await request(`/${id}`)).project as Project;
 export const deleteProject=async(id:string)=>request(`/${id}`,{method:"DELETE"});
+export const renameProject=async(id:string,name:string)=>{const form=new FormData();form.append("name",name);return (await request(`/${id}`,{method:"PATCH",body:form})).project as Project;};
 export const versions=async(id:string)=> (await request(`/${id}/versions`)).versions as Version[];
 export const restoreVersion=async(id:string,versionId:string)=> (await request(`/${id}/versions/${versionId}/restore`,{method:"POST"})).project as Project;
 export async function saveProject(project:Partial<Project>&{name:string;code:string;generatedCode:string;image?:File|null;designSettings?:unknown;analysis?:unknown}, id?:string) { const form=new FormData(); Object.entries(project).forEach(([key,value])=>{if(value===undefined||value===null)return;if(key==="image")form.append("image",value as File);else if(typeof value==="object")form.append(key,JSON.stringify(value));else form.append(key,String(value));}); return (await request(id?`/${id}`:"/",{method:id?"PATCH":"POST",body:form})).project as Project; }
