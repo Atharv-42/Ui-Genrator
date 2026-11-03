@@ -53,3 +53,68 @@ button { cursor: pointer; } button:disabled { cursor: not-allowed; opacity: .55;
 .sidebar-link:hover { background: #37373d; color: #fff; }
 .sidebar-link.active { background: #094771; color: #fff; }
 @media (max-width: 767px) { .app-shell, .app-shell.sidebar-open { display: block; } .sidebar { position: fixed; top: 4rem; bottom: 0; left: 0; z-index: 20; width: 15.5rem; transform: translateX(-100%); box-shadow: 12px 0 30px rgba(0,0,0,.3); } .sidebar.open { transform: translateX(0); } .sidebar:not(.open) { width: 15.5rem; } .sidebar-close { display: none; } }
+:root { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="light"] body { background: #f3f5f9; color: #202938; }
+:root[data-theme="light"] .min-h-screen.bg-zinc-950 { background-color: #f3f5f9 !important; color: #202938 !important; }
+:root[data-theme="light"] header.bg-zinc-950\/90 { background-color: rgb(255 255 255 / 92%) !important; }
+:root[data-theme="light"] .panel, :root[data-theme="light"] .sidebar { background: #fff; border-color: #dce2eb; }
+:root[data-theme="light"] .panel { box-shadow: 0 12px 36px rgb(22 34 54 / 7%); }
+:root[data-theme="light"] .field { background: #fff; color: #202938; border-color: #cbd5e1; }
+:root[data-theme="light"] .icon-button, :root[data-theme="light"] .header-action { color: #344054; border-color: #d0d7e2; }
+:root[data-theme="light"] .icon-button:hover, :root[data-theme="light"] .sidebar-close:hover { background: #edf2f8; color: #111827; }
+:root[data-theme="light"] .sidebar-heading { color: #667085; }
+:root[data-theme="light"] .sidebar-link, :root[data-theme="light"] .device { color: #475467; }
+:root[data-theme="light"] .sidebar-link:hover, :root[data-theme="light"] .device:hover { background: #f1f5f9; color: #1d2939; }
+:root[data-theme="light"] .text-white { color: #202938 !important; }
+:root[data-theme="light"] .text-zinc-100, :root[data-theme="light"] .text-zinc-200 { color: #344054 !important; }
+:root[data-theme="light"] .text-zinc-400, :root[data-theme="light"] .text-zinc-500 { color: #667085 !important; }
+:root[data-theme="light"] .bg-zinc-950 { background-color: #f8fafc !important; }
+:root[data-theme="light"] .bg-zinc-950\/50 { background-color: #f8fafc !important; }
+:root[data-theme="light"] .bg-zinc-900 { background-color: #f1f5f9 !important; }
+:root[data-theme="light"] .border-white\/10, :root[data-theme="light"] .border-zinc-700 { border-color: #dce2eb !important; }
+:root[data-theme="light"] .hover\:bg-zinc-900:hover { background-color: #f1f5f9 !important; }
+:root[data-theme="light"] .hover\:bg-zinc-800:hover { background-color: #e9eef5 !important; }
+:root[data-theme="light"] .text-red-200, :root[data-theme="light"] .text-red-300 { color: #b42318 !important; }
+:root[data-theme="light"] .border-red-900 { border-color: #fecdca !important; }
+:root[data-theme="light"] .bg-red-950\/40 { background-color: #fef3f2 !important; }
+:root[data-theme="light"] .device.active { background: #0e639c; color: #fff; }
+:root[data-theme="light"] .sidebar-link.active { background: #e6f3fc; color: #075985; }
+:root[data-theme="light"] .sidebar-link.active:hover { background: #d8edfb; color: #075985; }
+:root[data-theme="light"] .sidebar { box-shadow: 12px 0 30px rgb(16 24 40 / 10%); }
+:root[data-theme="light"] .bg-gray-900 { background-color: #fff !important; }
+:root[data-theme="light"] .bg-gray-950 { background-color: #f8fafc !important; }
+:root[data-theme="light"] .bg-gray-800 { background-color: #e9eef5 !important; }
+:root[data-theme="light"] .border-gray-800, :root[data-theme="light"] .border-gray-700 { border-color: #dce2eb !important; }
+:root[data-theme="light"] .text-gray-300 { color: #475467 !important; }
+:root[data-theme="light"] .text-gray-400, :root[data-theme="light"] .text-gray-500 { color: #667085 !important; }
+:root[data-theme="light"] .hover\:bg-gray-950:hover { background-color: #f1f5f9 !important; }
+
+/* Brighter, colorful light palette */
+:root[data-theme="light"] body {
+  background: #f4f5ff;
+  background-image: radial-gradient(ellipse at 12% 8%, rgb(196 181 253 / 28%), transparent 34%), radial-gradient(ellipse at 88% 12%, rgb(125 211 252 / 24%), transparent 30%);
+  color: #20213b;
+}
+:root[data-theme="light"] .min-h-screen.bg-zinc-950 { background-color: transparent !important; color: #20213b !important; }
+:root[data-theme="light"] header.bg-zinc-950\/90 { background: rgb(255 255 255 / 84%) !important; box-shadow: 0 1px 0 rgb(99 102 241 / 12%); }
+:root[data-theme="light"] .panel { border-color: #e0defa; background: rgb(255 255 255 / 94%); box-shadow: 0 16px 44px rgb(67 56 202 / 9%); }
+:root[data-theme="light"] .sidebar { background: linear-gradient(180deg, #fff 0%, #f2f3ff 100%); border-color: #e0defa; }
+:root[data-theme="light"] .eyebrow { color: #6d45d8; }
+:root[data-theme="light"] .brand-mark { background: linear-gradient(135deg, #7c3aed, #2563eb); box-shadow: 0 5px 14px rgb(99 102 241 / 30%); }
+:root[data-theme="light"] .primary-button { background: linear-gradient(110deg, #6d3bd1, #2563eb); box-shadow: 0 5px 13px rgb(79 70 229 / 24%); }
+:root[data-theme="light"] .primary-button:hover { background: linear-gradient(110deg, #5b2db9, #1d4ed8); }
+:root[data-theme="light"] .header-action { background: #fff; }
+:root[data-theme="light"] .header-action:hover:not(:disabled) { border-color: #8b5cf6; background: #f3efff; color: #5b21b6; }
+:root[data-theme="light"] .icon-button:hover { border-color: #c4b5fd; background: #f3efff; color: #6d28d9; }
+:root[data-theme="light"] .sidebar-link.active { background: linear-gradient(100deg, #ede9fe, #e0f2fe); color: #5b21b6; box-shadow: inset 3px 0 #7c3aed; }
+:root[data-theme="light"] .sidebar-link.active:hover { background: linear-gradient(100deg, #e9ddff, #d9efff); color: #4c1d95; }
+:root[data-theme="light"] .sidebar-link:hover { background: #f1edff; color: #5b21b6; }
+:root[data-theme="light"] .field:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgb(139 92 246 / 16%); }
+:root[data-theme="light"] .panel label.flex { background: linear-gradient(145deg, #faf5ff, #eff6ff) !important; border-color: #c4b5fd !important; }
+:root[data-theme="light"] .panel label.flex:hover { border-color: #8b5cf6 !important; }
+:root[data-theme="light"] .panel label.flex > svg { color: #7c3aed; }
+:root[data-theme="light"] .device.active { background: linear-gradient(110deg, #6d3bd1, #2563eb); box-shadow: 0 3px 9px rgb(79 70 229 / 22%); }
+:root[data-theme="light"] .text-sky-300 { color: #087eae !important; }
+:root[data-theme="light"] .text-violet-300 { color: #7138c8 !important; }
+:root[data-theme="light"] .text-purple-300 { color: #7138c8 !important; }
