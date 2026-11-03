@@ -1,14 +1,64 @@
 import { useState } from "react";
+import { ArrowRight, Check, Circle, Layers3, Palette, Ruler, Sparkles, Type } from "lucide-react";
 import { tokenSwatch, type DesignToken, type TokenCategory } from "../utils/designSystem";
 
 interface DesignSystemPanelProps { tokens: DesignToken[]; onApply: (token: DesignToken, replacement: string) => void; error: string; }
-const categories: TokenCategory[] = ["Colors", "Typography", "Spacing", "Radius", "Shadows"];
+const categories: Array<{ name: TokenCategory; icon: typeof Palette; description: string; accent: string }> = [
+  { name: "Colors", icon: Palette, description: "Color utilities used across the interface", accent: "violet" },
+  { name: "Typography", icon: Type, description: "Text size, weight, and rhythm", accent: "blue" },
+  { name: "Spacing", icon: Ruler, description: "Padding, margins, and layout gaps", accent: "cyan" },
+  { name: "Radius", icon: Circle, description: "Corner styles for interface elements", accent: "pink" },
+  { name: "Shadows", icon: Layers3, description: "Depth and elevation utilities", accent: "amber" },
+];
 
 export default function DesignSystemPanel({ tokens, onApply, error }: DesignSystemPanelProps) {
   const [selected, setSelected] = useState<DesignToken | null>(null);
   const [replacement, setReplacement] = useState("");
   const selectToken = (token: DesignToken) => { setSelected(token); setReplacement(token.value); };
-  return <section className="design-system rounded-2xl border border-gray-800 bg-gray-900 p-5"><h2 className="text-xl font-semibold">Design System</h2><p className="mt-1 text-sm text-gray-400">Reusable Tailwind values extracted from the current code.</p><div className="mt-5 grid gap-5 lg:grid-cols-2">{categories.map((category) => { const categoryTokens = tokens.filter((token) => token.category === category); return <div key={category}><h3 className="mb-2 text-sm font-medium text-gray-300">{category}</h3><div className="flex flex-wrap gap-2">{categoryTokens.length ? categoryTokens.map((token) => <button key={token.value} type="button" onClick={() => selectToken(token)} className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs transition ${selected?.value === token.value ? "border-purple-500 bg-purple-500/15" : "border-gray-700 bg-gray-950 hover:border-gray-500"}`}>{category === "Colors" && <span className="h-3 w-3 rounded-full border border-white/20" style={{ backgroundColor: tokenSwatch(token.value) }} />}<span>{token.value}</span><span className="text-gray-500">�{token.usage}</span></button>) : <span className="text-xs text-gray-500">None detected</span>}</div></div>; })}</div>{selected && <div className="mt-5 rounded-xl border border-gray-700 bg-gray-950 p-4"><p className="text-sm text-gray-300">Replace every <code className="text-purple-300">{selected.value}</code> token in the current code.</p><div className="mt-3 flex flex-col gap-2 sm:flex-row"><input value={replacement} onChange={(event) => setReplacement(event.target.value)} className="flex-1 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm outline-none focus:border-purple-500" aria-label="Replacement Tailwind utility" /><button type="button" onClick={() => onApply(selected, replacement)} className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium hover:bg-purple-700">Apply token</button></div></div>}{error && <p role="alert" className="mt-3 text-sm text-red-300">{error}</p>}</section>;
+  const usageCount = tokens.reduce((total, token) => total + token.usage, 0);
+
+  return <section className="design-dashboard">
+    <header className="design-hero">
+      <div className="design-hero-copy">
+        <span className="design-kicker"><Sparkles size={14}/> DESIGN WORKSPACE</span>
+        <h1>Design system</h1>
+        <p>Explore and refine the reusable styles found in your generated interface.</p>
+      </div>
+      <div className="design-summary">
+        <div><span className="design-summary-icon"><Palette size={19}/></span><strong>{tokens.length}</strong><span>unique tokens</span></div>
+        <div><span className="design-summary-icon blue"><Layers3 size={19}/></span><strong>{usageCount}</strong><span>total usages</span></div>
+      </div>
+    </header>
+
+    <div className="design-content">
+      <div className="design-category-grid">
+        {categories.map(({ name, icon: Icon, description, accent }) => {
+          const categoryTokens = tokens.filter((token) => token.category === name);
+          return <section className={`design-category accent-${accent}`} key={name}>
+            <div className="design-category-heading">
+              <span className="design-category-icon"><Icon size={19}/></span>
+              <div><h2>{name}</h2><p>{description}</p></div>
+              <span className="design-count">{categoryTokens.length}</span>
+            </div>
+            {categoryTokens.length ? <div className={`design-token-list ${name === "Colors" ? "color-token-list" : ""}`}>
+              {categoryTokens.map((token) => <button key={token.value} type="button" onClick={() => selectToken(token)} className={`design-token ${selected?.category === token.category && selected.value === token.value ? "selected" : ""}`}>
+                {name === "Colors" && <span className="design-swatch" style={{ backgroundColor: tokenSwatch(token.value) || "currentColor" }}/>}<span className="design-token-value">{token.value}</span><span className="design-token-usage">× {token.usage}</span>{selected?.category === token.category && selected.value === token.value && <Check className="design-token-check" size={14}/>}
+              </button>)}
+            </div> : <p className="design-empty">No {name.toLowerCase()} detected in the current code.</p>}
+          </section>;
+        })}
+      </div>
+
+      <aside className="design-editor">
+        <div className="design-editor-heading"><span className="design-editor-icon"><Sparkles size={18}/></span><div><h2>Token editor</h2><p>Apply a utility change throughout your code.</p></div></div>
+        {selected ? <>
+          <div className="design-selected-token"><span className="design-selected-label">SELECTED TOKEN</span><div><span className="design-swatch large" style={{ backgroundColor: tokenSwatch(selected.value) || "#8b5cf6" }}/><code>{selected.value}</code><span className="design-token-usage">× {selected.usage}</span></div></div>
+          <label className="design-replacement-label" htmlFor="design-replacement">Replace with</label>
+          <div className="design-replacement-row"><input id="design-replacement" value={replacement} onChange={(event) => setReplacement(event.target.value)} placeholder="Enter a Tailwind utility"/><button type="button" onClick={() => onApply(selected, replacement)} disabled={!replacement.trim() || /\s/.test(replacement.trim())}><span>Apply change</span><ArrowRight size={16}/></button></div>
+          <p className="design-editor-hint">Every matching <code>{selected.value}</code> utility in the generated code will be updated.</p>
+        </> : <div className="design-editor-empty"><span><Palette size={22}/></span><strong>Choose a token to edit</strong><p>Select any token card to prepare a project wide replacement.</p></div>}
+        {error && <p role="alert" className="design-error">{error}</p>}
+      </aside>
+    </div>
+  </section>;
 }
-
-
