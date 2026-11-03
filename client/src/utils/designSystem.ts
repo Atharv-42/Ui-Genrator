@@ -42,9 +42,18 @@ export function extractDesignTokens(code: string): DesignToken[] {
 }
 
 export function replaceToken(code: string, token: string, replacement: string) {
-  if (!replacement.trim() || /\s/.test(replacement)) throw new Error("Enter one valid Tailwind utility class.");
+  const normalizedReplacement = replacement.trim();
+  if (!normalizedReplacement || /\s/.test(normalizedReplacement)) throw new Error("Enter one valid Tailwind utility class.");
   const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return code.replace(new RegExp(`\\b${escaped}\\b`, "g"), replacement.trim());
+  let count = 0;
+  // Hyphens are part of Tailwind utility names, so generic word boundaries
+  // would incorrectly let a token like `rounded` match `rounded-xl`.
+  const tokenPattern = new RegExp(`(^|[^\\w-])${escaped}(?=$|[^\\w-])`, "g");
+  const updatedCode = code.replace(tokenPattern, (_match, prefix: string) => {
+    count += 1;
+    return `${prefix}${normalizedReplacement}`;
+  });
+  return { code: updatedCode, count };
 }
 
 export function tokenSwatch(token: string) {
